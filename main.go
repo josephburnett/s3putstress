@@ -1,7 +1,9 @@
 package main
 
 import (
+        "fmt"
         "math/rand"
+        "time"
 
         "gopkg.in/amz.v1/aws"
         "gopkg.in/amz.v1/s3"
@@ -23,10 +25,37 @@ func main() {
 
         rand.Seed(0)
 
-        put()
+        limit := make(chan bool)
+        done := make(chan bool)
+
+        for i := 0; i < 50; i++ {
+                go putParty(limit);
+        }
+
+        go partyPooper(limit, done)
+        <- done
+}
+
+func putParty(limit chan bool) {
+        for {
+                <-limit
+                put()
+        }
+}
+
+func partyPooper(limit, done chan bool) {
+
+        for i := 0; i < 100; i++ {
+                limit <- true
+                time.Sleep(100 * time.Millisecond)
+        }
+
+        fmt.Printf("\n")
+        done <- true
 }
 
 func put() {
+
         data := []byte("bang!")
         key := randSeq(32)
 
@@ -34,6 +63,8 @@ func put() {
         if err != nil {
                 panic(err)
         }
+
+        fmt.Printf(".")
 }
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
