@@ -43,13 +43,13 @@ func partyPooper(limit, goHome chan bool) {
         start := time.Now()
         for {
                 elapsed := time.Since(start)
-                if (elapsed > 1000000000 * 60 * 5 /* 5 minutes */) {
+                if (elapsed > 1000000000 * 60 * 10 /* 10 minutes */) {
                         fmt.Printf("\n")
                         goHome <- true
                 }
 
                 limit <- true
-                time.Sleep(50 * time.Millisecond)
+                time.Sleep(10 * time.Millisecond) /* 100 TPS */
         }
 }
 
